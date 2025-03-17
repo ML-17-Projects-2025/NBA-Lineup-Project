@@ -14,11 +14,11 @@ matchup_data = pd.concat(dataframes, ignore_index=True)
 label_encoders = joblib.load("nba_label_encoders.pkl")
 
 # Define features and target
-features = ["home_0", "home_1", "home_2", "home_3", "home_team", "away_team",
-            "fga_home", "fta_home", "fgm_home", "fga_2_home", "fgm_2_home",
-            "fga_3_home", "fgm_3_home", "ast_home", "blk_home", "pf_home",
-            "reb_home", "dreb_home", "oreb_home", "to_home", "pts_home"]
-target = "home_4"
+features = ["game", "season", "starting_min",
+            "home_0", "home_1", "home_2", "home_3" "home_4",
+            "away_0", "away_1", "away_2", "away_3", "away_4",
+            "home_team", "away_team",]
+target = "home_0", "home_1", "home_2", "home_3", "home_4"
 
 # Convert features to numeric (downcast to float32)
 matchup_data[features] = matchup_data[features].apply(pd.to_numeric, downcast='float')
