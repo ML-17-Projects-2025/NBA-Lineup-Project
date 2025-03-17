@@ -71,6 +71,14 @@ for i in range(n_iterations):
     print(
         f"Iteration {i + 1}: Train Accuracy = {train_accuracy:.4f}, Test Accuracy = {test_accuracy:.4f}, Predicted Fifth Player = {predicted_player_name}")
 
+# 9. Save the Model and Encoders for Future Use
+joblib.dump(dt_model, "nba_fifth_player_model.pkl")
+joblib.dump(label_encoders, "nba_label_encoders.pkl")
+
+# 10. Reload the Model and Use it Later (example)
+# dt_model = joblib.load("nba_fifth_player_model.pkl")
+# label_encoders = joblib.load("nba_label_encoders.pkl")
+
 # Compute and display average accuracy over all runs
 avg_train_accuracy = np.mean(train_accuracies)
 avg_test_accuracy = np.mean(test_accuracies)
