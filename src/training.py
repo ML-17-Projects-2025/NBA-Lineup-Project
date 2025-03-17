@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 import joblib
 import os
 
-# Load dataset (adjust the path if necessary)
+# Load dataset
 file_paths = [f"../datasets/encoded/matchups-{year}-encoded.csv" for year in range(2007, 2016)]
 dataframes = [pd.read_csv(file) for file in file_paths]
 matchup_data = pd.concat(dataframes, ignore_index=True)
