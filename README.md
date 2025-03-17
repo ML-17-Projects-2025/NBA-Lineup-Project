@@ -41,9 +41,9 @@ python src/predict.py --input data/test_data.csv --output data/predictions.csv
 - **Presentation Slides**: `presentation.pptx`
 
 ## Authors
-- [Your Name]
-- [Your Team]
+- Rolf-Jaden Sibal, Dmitri Rios-Nadeau, Suluxan Manogharan
+- Team 17
 
 ## License
-MIT License
+¯\_(ツ)_/¯
 
