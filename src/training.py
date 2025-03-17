@@ -75,13 +75,6 @@ for i in range(n_iterations):
 joblib.dump(dt_model, "nba_fifth_player_model.pkl")
 joblib.dump(label_encoders, "nba_label_encoders.pkl")
 
-<<<<<<< HEAD:src/training.py
-=======
-# 10. Reload the Model and Use it Later (example)
-# dt_model = joblib.load("nba_fifth_player_model.pkl")
-# label_encoders = joblib.load("nba_label_encoders.pkl")
-
->>>>>>> fd6ea59cfd5ebaf5b33a54c4efc469d45a37e732:src/venv/training.py
 # Compute and display average accuracy over all runs
 avg_train_accuracy = np.mean(train_accuracies)
 avg_test_accuracy = np.mean(test_accuracies)
