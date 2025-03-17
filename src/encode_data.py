@@ -13,10 +13,12 @@ for file in file_paths:
 
     # Encode categorical columns (players and teams) using LabelEncoder
     label_encoders = {}
-    for col in ["home_0", "home_1", "home_2", "home_3", "home_4", "home_team", "away_team"]:
+    for col in ["home_0", "home_1", "home_2", "home_3", "home_4", "home_team", "away_team", "away_0", "away_1", "away_2", 
+    "away_3", "away_4"
+ ]:
         le = LabelEncoder()
         matchup_data[col] = le.fit_transform(matchup_data[col])
-        label_encoders[col] = le  # Save encoders for later decoding
+        label_encoders[col] = le 
 
     # Extract the file name from the path
     file_name = os.path.basename(file)  
