@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.preprocessing import LabelEncoder
 import joblib
 import os
 
@@ -20,6 +19,12 @@ features = ["home_0", "home_1", "home_2", "home_3", "home_team", "away_team",
             "fga_3_home", "fgm_3_home", "ast_home", "blk_home", "pf_home",
             "reb_home", "dreb_home", "oreb_home", "to_home", "pts_home"]
 target = "home_4"
+
+# Convert features to numeric (downcast to float32)
+matchup_data[features] = matchup_data[features].apply(pd.to_numeric, downcast='float')
+
+# Convert target to category type (which uses less memory for categorical data)
+matchup_data[target] = matchup_data[target].astype('category')
 
 # Prepare the feature matrix (X) and target vector (y)
 X = matchup_data[features]
@@ -69,17 +74,15 @@ for i in range(n_iterations):
         f"Iteration {i + 1}: Train Accuracy = {train_accuracy:.4f}, Test Accuracy = {test_accuracy:.4f}, Predicted Fifth Player = {predicted_player_name}")
 
 # 9. Save the Model and Encoders for Future Use
-joblib.dump(dt_model, "nba_fifth_player_model.pkl")
-joblib.dump(label_encoders, "nba_label_encoders.pkl")
+model_path = "nba_fifth_player_model.pkl"
+encoders_path = "nba_label_encoders.pkl"
+
+joblib.dump(dt_model, model_path)
+joblib.dump(label_encoders, encoders_path)
 
 # Compute and display average accuracy over all runs
 avg_train_accuracy = np.mean(train_accuracies)
 avg_test_accuracy = np.mean(test_accuracies)
-
-# Check if model and encoders exist before loading
-if os.path.exists("../src/nba_fifth_player_model.pkl") and os.path.exists("../src/nba_label_encoders.pkl"):
-    dt_model = joblib.load("../src/nba_fifth_player_model.pkl")
-    label_encoders = joblib.load("../src/nba_label_encoders.pkl")
 
 print("\nAverage Training Accuracy over 100 runs:", avg_train_accuracy)
 print("Average Testing Accuracy over 100 runs:", avg_test_accuracy)

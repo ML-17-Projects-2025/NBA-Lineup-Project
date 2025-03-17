@@ -35,8 +35,8 @@ python src/predict.py --input data/test_data.csv --output data/predictions.csv
 ```
 
 ## Deliverables
-- **Trained Model**: [`rf_model.pkl`](models/rf_model.pkl)
-- **Predictions**: [`predicted_fifth_players.csv`](data/predicted_fifth_players.csv)
+- **Trained Model**: [`rf_model.pkl`](src/rf_model.pkl)
+- **Predictions**: [`predicted_fifth_players.csv`](output_files/predicted_fifth_players.csv)
 - **Final Report**: `report.pdf`
 - **Presentation Slides**: `presentation.pptx`
 
