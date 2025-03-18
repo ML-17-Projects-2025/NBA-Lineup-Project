@@ -13,8 +13,8 @@ for file in file_paths:
 
     # Encode categorical columns (players and teams) using LabelEncoder
     label_encoders = {}
-    for col in ["home_0", "home_1", "home_2", "home_3", "home_4", "home_team", "away_team", "away_0", "away_1", "away_2", 
-    "away_3", "away_4"
+    for col in ["home_0", "home_1", "home_2", "home_3", "home_4", "away_0", "away_1", "away_2", 
+    "away_3", "away_4", "home_team", "away_team", "starting_min", "game", "season"
  ]:
         le = LabelEncoder()
         matchup_data[col] = le.fit_transform(matchup_data[col])
