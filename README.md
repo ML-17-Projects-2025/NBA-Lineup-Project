@@ -6,7 +6,7 @@ This project aims to develop a machine learning model that predicts the optimal 
 ## Dataset
 - **Source**: NBA matchup data from 2007 to 2015.
 - **Features Used**: Player lineups, game statistics, and team performance metrics (as specified in the metadata file).
-- **Target Variable**: The optimal fifth player for the home team.
+- **Target Variable**: The most likely fifth player for the home team.
 
 ## Model
 - **Algorithm**: Random Forest Classifier
