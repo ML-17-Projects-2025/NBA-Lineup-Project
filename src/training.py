@@ -10,81 +10,93 @@ file_paths = [f"../datasets/encoded/matchups-{year}-encoded.csv" for year in ran
 dataframes = [pd.read_csv(file) for file in file_paths]
 matchup_data = pd.concat(dataframes, ignore_index=True)
 
+# Debug: Check if data is loaded properly
+print("Dataset loaded. Number of rows:", matchup_data.shape[0])
+
 # Load NBA encoded labels
-label_encoders = joblib.load("nba_label_encoders.pkl")
+if os.path.exists("nba_label_encoders.pkl"):
+    label_encoders = joblib.load("nba_label_encoders.pkl")
+else:
+    raise FileNotFoundError("nba_label_encoders.pkl not found!")
 
-# Define features and target
-features = ["game", "season", "starting_min",
-            "home_0", "home_1", "home_2", "home_3" "home_4",
-            "away_0", "away_1", "away_2", "away_3", "away_4",
-            "home_team", "away_team",]
-target = "home_0", "home_1", "home_2", "home_3", "home_4"
+# Define features (all player positions and other relevant features)
+player_positions = ["home_0", "home_1", "home_2", "home_3", "home_4"]
+features = player_positions + ["away_0", "away_1", "away_2", "away_3", "away_4", "home_team", "away_team", "starting_min", "game", "season"]
 
-# Convert features to numeric (downcast to float32)
-matchup_data[features] = matchup_data[features].apply(pd.to_numeric, downcast='float')
+# Augment dataset: create multiple versions where each home_* player is missing
+augmented_data = []
 
-# Convert target to category type (which uses less memory for categorical data)
-matchup_data[target] = matchup_data[target].astype('category')
+print("Augmenting dataset...")
+for idx, row in matchup_data.iterrows():
+    for missing_index in range(5):  # Iterate over home_0 to home_4
+        temp_row = row.copy()
+        missing_player = temp_row[player_positions[missing_index]]  # Store the missing player as target
+        temp_row[player_positions[missing_index]] = np.nan  # Remove player
+        augmented_data.append((temp_row.drop(columns=player_positions), missing_player))
+    
+    # Debug: Print progress every 10,000 rows
+    if len(augmented_data) % 10000 == 0:
+        print(f"Processed {len(augmented_data)} augmented rows...")
 
-# Prepare the feature matrix (X) and target vector (y)
-X = matchup_data[features]
-y = matchup_data[target]
+# Convert augmented data into DataFrame
+X_augmented = pd.DataFrame([x[0] for x in augmented_data])
+y_augmented = np.array([x[1] for x in augmented_data])
 
-# Set number of iterations and initialize lists to store accuracy results
+# Ensure numerical consistency
+X_augmented = X_augmented.apply(pd.to_numeric, downcast='float')
+
+# Convert target to categorical
+y_augmented = pd.Series(y_augmented).astype('category')
+
+# Prepare feature matrix (X) and target vector (y)
+X = X_augmented
+y = y_augmented
+
+# Initialize lists to store accuracy results
 n_iterations = 100
 train_accuracies = []
 test_accuracies = []
-predicted_players = []  # To store predicted player names
+predicted_players = []
 
 # Run model 100 times with different random states
 for i in range(n_iterations):
-    random_state = np.random.randint(0, 10000)  # Random state for each iteration
-
-    # Split the data into training and testing sets
+    rng = np.random.default_rng()
+    random_state = rng.integers(0, 10000)
+    
+    # Split data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random_state)
 
-    # Initialize the Decision Tree Classifier
-    dt_model = DecisionTreeClassifier(random_state=random_state)
-
-    # Train the model
+    # Train Decision Tree Classifier
+    dt_model = DecisionTreeClassifier(random_state=random_state, ccp_alpha=0.0)
     dt_model.fit(X_train, y_train)
 
-    # Evaluate the model on training and test data
+    # Evaluate
     train_accuracy = dt_model.score(X_train, y_train)
     test_accuracy = dt_model.score(X_test, y_test)
 
-    # Example new lineup (replace with actual data)
-    new_lineup = np.array([[123, 456, 789, 101, 202, 303, 10, 5, 8, 4, 2, 6, 3, 7, 2, 1, 12, 9, 5, 3, 20]])
+    # Example new lineup with a missing player (ensure it matches `features`)
+    new_lineup = np.array([[123, 456, 789, 101, np.nan, 303, 10, 5, 8, 4, 2, 6, 3, 7, 2, 1001, 2005, 2010]])  # One player missing
 
-    # Convert the new lineup to a DataFrame with feature names
-    new_lineup_df = pd.DataFrame(new_lineup, columns=features)
+    # Convert to DataFrame
+    new_lineup_df = pd.DataFrame(new_lineup, columns=X.columns)
 
-    # Predict the fifth player
-    predicted_home_4 = dt_model.predict(new_lineup_df)[0]
+    # Predict and decode
+    predicted_home = dt_model.predict(new_lineup_df)[0]
+    predicted_player_name = label_encoders["home_4"].inverse_transform([predicted_home])[0]
 
-    # Decode predicted player ID back to player name
-    predicted_player_name = label_encoders["home_4"].inverse_transform([predicted_home_4])[0]
-
-    # Store the accuracy results and predicted player name
+    # Store results
     train_accuracies.append(train_accuracy)
     test_accuracies.append(test_accuracy)
     predicted_players.append(predicted_player_name)
 
-    print(
-        f"Iteration {i + 1}: Train Accuracy = {train_accuracy:.4f}, Test Accuracy = {test_accuracy:.4f}, Predicted Fifth Player = {predicted_player_name}")
+    print(f"Iteration {i + 1}: Train Acc = {train_accuracy:.4f}, Test Acc = {test_accuracy:.4f}, Predicted: {predicted_player_name}")
 
-# 9. Save the Model and Encoders for Future Use
-model_path = "nba_fifth_player_model.pkl"
-encoders_path = "nba_label_encoders.pkl"
+# Save model and encoders
+joblib.dump(dt_model, "nba_fifth_player_model.pkl")
+joblib.dump(label_encoders, "nba_label_encoders.pkl")
 
-joblib.dump(dt_model, model_path)
-joblib.dump(label_encoders, encoders_path)
-
-# Compute and display average accuracy over all runs
-avg_train_accuracy = np.mean(train_accuracies)
-avg_test_accuracy = np.mean(test_accuracies)
-
-print("\nAverage Training Accuracy over 100 runs:", avg_train_accuracy)
-print("Average Testing Accuracy over 100 runs:", avg_test_accuracy)
+# Compute and display average accuracy
+print("\nAverage Training Accuracy:", np.mean(train_accuracies))
+print("Average Testing Accuracy:", np.mean(test_accuracies))
 
 input('Press ENTER to exit')
