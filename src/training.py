@@ -33,6 +33,7 @@ for idx, row in matchup_data.iterrows():
         missing_player = temp_row[player_positions[missing_index]]  # Store the missing player as target
         temp_row[player_positions[missing_index]] = np.nan  # Remove player
         augmented_data.append((temp_row.drop(columns=player_positions), missing_player))
+        
     
     # Debug: Print progress every 10,000 rows
     if len(augmented_data) % 10000 == 0:
@@ -41,6 +42,9 @@ for idx, row in matchup_data.iterrows():
 # Convert augmented data into DataFrame
 X_augmented = pd.DataFrame([x[0] for x in augmented_data])
 y_augmented = np.array([x[1] for x in augmented_data])
+
+print(X_augmented.dtypes)
+print(X_augmented.head())
 
 # Ensure numerical consistency
 X_augmented = X_augmented.apply(pd.to_numeric, downcast='float')
@@ -74,14 +78,21 @@ for i in range(n_iterations):
     train_accuracy = dt_model.score(X_train, y_train)
     test_accuracy = dt_model.score(X_test, y_test)
 
-    # Example new lineup with a missing player (ensure it matches `features`)
-    new_lineup = np.array([[123, 456, 789, 101, np.nan, 303, 10, 5, 8, 4, 2, 6, 3, 7, 2, 1001, 2005, 2010]])  # One player missing
+    # Example new lineup with a missing player (ensure it matches features)
+    new_lineup_dict = {col: np.nan for col in X.columns}  # Create a dictionary with all required features
+    new_lineup_dict.update({
+    "home_0": 123, "home_1": 456, "home_2": 789, "home_3": 101,
+    "away_0": 303, "away_1": 10, "away_2": 5, "away_3": 8, "away_4": 4,
+    "home_team": 2, "away_team": 6, "starting_min": 3,
+    "game": 7, "season": 2,  # Ensure these exist
+    })  # Fill in known values
 
+    
     # Convert to DataFrame
-    new_lineup_df = pd.DataFrame(new_lineup, columns=X.columns)
+    new_lineup_df = pd.DataFrame([new_lineup_dict])
 
     # Predict and decode
-    predicted_home = dt_model.predict(new_lineup_df)[0]
+    predicted_home = int(round(dt_model.predict(new_lineup_df)[0]))
     predicted_player_name = label_encoders["home_4"].inverse_transform([predicted_home])[0]
 
     # Store results
