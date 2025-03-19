@@ -25,7 +25,7 @@ test_data = test_data[feature_columns]
 test_data = test_data.apply(pd.to_numeric, errors='coerce')
 
 # Extract true missing player names from test_labels
-y_test = test_labels["missing_player"].astype(str)
+y_test = test_labels["removed_value"].astype(str)
 
 # Remove the missing player (simulate as model expects)
 test_data["home_4"] = np.nan
