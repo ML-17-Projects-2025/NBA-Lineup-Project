@@ -21,7 +21,7 @@ else:
 
 # Define features (all player positions and other relevant features)
 player_positions = ["home_0", "home_1", "home_2", "home_3", "home_4"]
-features = player_positions + ["away_0", "away_1", "away_2", "away_3", "away_4", "home_team", "away_team", "starting_min", "game", "season"]
+features = player_positions + ["away_0", "away_1", "away_2", "away_3", "away_4", "home_team", "away_team", "starting_min", "season"]
 
 # Augment dataset: create multiple versions where each home_* player is missing
 augmented_data = []
