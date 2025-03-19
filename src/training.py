@@ -83,9 +83,8 @@ for i in range(n_iterations):
     new_lineup_dict.update({
     "home_0": 123, "home_1": 456, "home_2": 789, "home_3": 101,
     "away_0": 303, "away_1": 10, "away_2": 5, "away_3": 8, "away_4": 4,
-    "home_team": 2, "away_team": 6, "starting_min": 3,
-    "game": 7, "season": 2,  # Ensure these exist
-    })  # Fill in known values
+    "home_team": 2, "away_team": 6, "starting_min": 3, "season": 2,
+    })
 
     
     # Convert to DataFrame
