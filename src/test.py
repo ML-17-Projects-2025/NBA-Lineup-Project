@@ -42,6 +42,12 @@ test_data = test_data.apply(pd.to_numeric, errors='coerce')
 
 # Extract true missing player names from test_labels
 y_test = test_labels["removed_value"].astype(str)
+<<<<<<< HEAD
+=======
+
+# Remove the missing player (simulate as model expects)
+test_data["home_4"] = np.nan
+>>>>>>> 2e77ec674469f8e0dcba77a8d95904348d19d9e2
 
 # Make predictions
 predictions = model.predict(test_data)
